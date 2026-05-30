@@ -168,12 +168,12 @@ public class HomeWork extends JPanel {
 }
    
             </code></pre>
-     <!-- 用 <figure> 包裹，图片+标题一组，最规范 -->
+   
 <figure style="text-align: center; margin: 20px 0;">
-  <!-- 标题写在图片上面 -->
+
   <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
   
-  <!-- 修正后的图片标签 -->
+
   <img 
     src="./1-120之间的素数.png" 
     alt="运行结果截图" 
@@ -184,16 +184,13 @@ public class HomeWork extends JPanel {
 
 </div>
 
-<!-- 以后加新作业，直接复制下面这段改内容即可 -->
-<!--
 <div class="card">
     <h2>枚举类型</h2>
     <pre><code class="language-java">
-// 你的代码
-            // 文件名: EnumHomework.java
+
 public class EnumHomework {
 
-    // 场景 1: 状态 / 类型定义
+   
     enum OrderStatus {
         PENDING,    // 待处理
         PROCESSING, // 处理中
@@ -201,7 +198,7 @@ public class EnumHomework {
         CANCELLED   // 已取消
     }
 
-    // 场景 2: 策略模式，用枚举代替 if/else
+  
     enum Operation {
         ADD {
             @Override
@@ -223,7 +220,7 @@ public class EnumHomework {
         abstract double apply(double x, double y);
     }
 
-    // 场景 3: 统一返回码
+  
     enum ResponseCode {
         SUCCESS(200, "成功"),
         ERROR(500, "服务器错误"),
@@ -242,31 +239,30 @@ public class EnumHomework {
     }
 
     public static void main(String[] args) {
-        // ----------- 场景 1: 状态测试 -----------
+       
         OrderStatus status = OrderStatus.PROCESSING;
         System.out.println("\n===== 场景1：状态测试 =====");
         System.out.println("订单状态: " + status);
 
-        // ----------- 场景 2: 策略模式测试 -----------
+        
         double a = 10, b = 5;
         System.out.println("\n===== 场景2：策略模式测试 =====");
         for (Operation op : Operation.values()) {
             System.out.println(op + ": " + a + " ? " + b + " = " + op.apply(a, b));
         }
 
-        // ----------- 场景 3: 返回码测试 -----------
+       
         ResponseCode code = ResponseCode.SUCCESS;
         System.out.println("\n===== 场景3：统一返回码 =====");
         System.out.println("返回码: " + code.getCode() + ", 描述: " + code.getMessage());
     }
 }
     </code></pre>
-     <!-- 用 <figure> 包裹，图片+标题一组，最规范 -->
 <figure style="text-align: center; margin: 20px 0;">
-  <!-- 标题写在图片上面 -->
+  
   <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
   
-  <!-- 修正后的图片标签 -->
+ 
   <img 
     src="./枚举类型截图.png" 
     alt="运行结果截图" 
@@ -275,7 +271,6 @@ public class EnumHomework {
   >
 </figure>
 </div>
--->
 
 <script>
 hljs.highlightAll();
