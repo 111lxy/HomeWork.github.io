@@ -4,48 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>我的JavaHomeWork博客主页</title>
+<title>李小妍的JavaHomeWork</title>
 
 <link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
 <style>
 body{
-    background:#0d1117;
-    color:white;
-    font-family:Arial,sans-serif;
-    max-width:1200px;
-    margin:auto;
-    padding:30px;
+    background: #ffffff; /* 页面背景改为白色 */
+    color: #24292f; /* 文字改为深灰，适配白底 */
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px;
 }
 
 h1{
-    text-align:center;
+    text-align: center;
 }
 
+/* 卡片样式修改：白底+阴影+间距 */
 .card{
-    background:#161b22;
-    padding:25px;
-    border-radius:12px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px; /* 卡片之间的间距 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 卡片阴影 */
+    border: 1px solid #e5e7eb; /* 轻微边框，区分卡片和背景 */
 }
 
 pre{
-    border-radius:10px;
+    border-radius: 10px;
+    margin: 0; /* 去掉默认边距，贴合卡片 */
 }
 </style>
 </head>
 
 <body>
 
-<h1>我的JavaHomeWork博客主页</h1>
+<h1>李小妍的JavaHomeWork</h1>
 
 <div class="card">
-
-<h2>Prime Number Color Grid Program</h2>
-
-<pre><code class="language-java">
+    <h2>求1-120之间的primes number</h2>
+    <pre><code class="language-java">
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -60,7 +63,7 @@ public class HomeWork extends JPanel {
         setBackground(Color.WHITE);
         findPrimes(totalNumbers);
     }
-// 计算质数
+
     private void findPrimes(int n) {
         primes.clear();
         for (int i = 2; i <= n; i++) {
@@ -76,7 +79,7 @@ public class HomeWork extends JPanel {
         return true;
     }
 
-    // 获取数字颜色
+  
     private Color getColor(int num) {
         switch (num) {
             case 2: return Color.RED;
@@ -102,7 +105,7 @@ public class HomeWork extends JPanel {
         int panelWidth = getWidth();
         int panelHeight = getHeight();
 
-        // 留出右侧显示质数的空间
+        
         int rightMargin = panelWidth / 3;
         int gridWidth = panelWidth - rightMargin;
 
@@ -110,7 +113,7 @@ public class HomeWork extends JPanel {
         int cellHeight = panelHeight / rows;
         int size = Math.min(cellWidth, cellHeight);
 
-        // 绘制网格数字
+      
         g.setFont(new Font("Arial", Font.BOLD, size / 2));
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
@@ -128,7 +131,7 @@ public class HomeWork extends JPanel {
             }
         }
 
-        // 绘制右侧质数标题
+       
         int titleFontSize = size / 2;
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, titleFontSize));
@@ -136,7 +139,7 @@ public class HomeWork extends JPanel {
         int yOffset = titleFontSize + 10;
         g.drawString("Primes Number:", xOffset, yOffset);
 
-        // 绘制右侧质数（自动换行）
+       
         int primeFontSize = size / 3;
         g.setFont(new Font("Arial", Font.PLAIN, primeFontSize));
         int maxWidth = rightMargin - 20;
@@ -164,10 +167,18 @@ public class HomeWork extends JPanel {
     }
 }
    
-}
-</code></pre>
-
+            </code></pre>
 </div>
+
+<!-- 以后加新作业，直接复制下面这段改内容即可 -->
+<!--
+<div class="card">
+    <h2>作业标题</h2>
+    <pre><code class="language-java">
+// 你的代码
+    </code></pre>
+</div>
+-->
 
 <script>
 hljs.highlightAll();
