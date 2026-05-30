@@ -185,7 +185,7 @@ public class HomeWork extends JPanel {
 </div>
 
 <div class="card">
-    <h2>枚举类型</h2>
+    <h2>2.枚举类型</h2>
     <pre><code class="language-java">
 
 public class EnumHomework {
@@ -271,7 +271,163 @@ public class EnumHomework {
   >
 </figure>
 </div>
+<div class="card">
+    <h2>4. 计算方法执行耗时（匿名内部类）</h2>
+    <pre><code class="language-java">
+public class TimeCounter {
 
+    public interface Task {
+        void execute();
+    }
+
+    public static long count(Task task) {
+        long start = System.currentTimeMillis();
+        task.execute();
+        long end = System.currentTimeMillis();
+        return (end - start) / 1000;
+    }
+
+    public static void main(String[] args) {
+        long time1 = count(new Task() {
+            @Override
+            public void execute() {
+                int sum = 0;
+                for (int i = 0; i < 1_000_000; i++) {
+                    sum += i;
+                }
+                System.out.println("循环任务执行完毕，sum = " + sum);
+            }
+        });
+        System.out.println("循环任务耗时：" + time1 + " 秒");
+
+        long time2 = count(new Task() {
+            @Override
+            public void execute() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        System.out.println("睡眠任务耗时：" + time2 + " 秒");
+    }
+}
+    </code></pre>
+
+    <figure style="text-align: center; margin: 20px 0;">
+        <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+        <img 
+            src="./方法执行.png" 
+            alt="运行结果截图" 
+            style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+            class="result-img"
+        >
+    </figure>
+</div>
+ <div class="card">
+    <h2>5. Java 反射机制</h2>
+    <p>
+        本作业通过示例代码演示了 Java 反射的基本用法：
+        1. 获取 Class 对象
+        2. 用反射创建对象
+        3. 调用 public / private 方法
+        4. 修改 public / private 字段
+        反射机制让程序可以在运行时动态获取类信息并操作对象。
+    </p>
+    <pre><code class="language-java">
+类名：Student
+
+【反射创建对象后（默认值）】
+大家好，我是一名大学生，今年18岁
+
+【调用 public 方法】
+大家好，我是一名大学生，今年18岁
+
+【调用 private 方法】
+一名大学生正在学习：Java反射
+
+【修改字段后最终结果】
+大家好，我是李小妍，今年20岁
+    </code></pre>
+
+    <figure style="text-align: center; margin: 20px 0;">
+        <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+        <img 
+            src="./反射机制.png" 
+            alt="运行结果截图" 
+            style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+            class="result-img"
+        >
+    </figure>
+</div> 
+      <div class="card">
+    <h2>6. Java IO 流文件复制</h2>
+    
+    <pre><code class="language-java">
+import java.io.*;
+
+public class FileCopyDemo {
+
+    // 1. 文本文件复制（字符缓冲流，最常用）
+    public static void copyTextFile(String srcPath, String destPath) throws IOException {
+        File srcFile = new File(srcPath);
+        File destFile = new File(destPath);
+
+        BufferedReader br = new BufferedReader(new FileReader(srcFile));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(destFile));
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            bw.write(line);
+            bw.newLine();
+        }
+
+        bw.close();
+        br.close();
+        System.out.println("文本文件复制完成！");
+    }
+
+    // 2. 任意文件复制（字节缓冲流，万能复制）
+    public static void copyAnyFile(String srcPath, String destPath) throws IOException {
+        File srcFile = new File(srcPath);
+        File destFile = new File(destPath);
+
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
+
+        byte[] buffer = new byte[8192];
+        int len;
+        while ((len = bis.read(buffer)) != -1) {
+            bos.write(buffer, 0, len);
+        }
+
+        bos.close();
+        bis.close();
+        System.out.println("任意文件复制完成！");
+    }
+
+    public static void main(String[] args) {
+        try {
+            copyTextFile("src.txt", "dest_text.txt");
+            copyAnyFile("test.jpg", "dest_image.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+    </code></pre>
+
+    <figure style="text-align: center; margin: 20px 0;">
+        <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+        <img 
+            src="./竞赛题.png" 
+            alt="运行结果截图" 
+            style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+            class="result-img"
+        >
+    </figure>
+</div>      
 <script>
 hljs.highlightAll();
 </script>
