@@ -1,28 +1,51 @@
-<h1>李小妍的JavaHomeWork博客主页</h1>
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我的JavaHomeWork博客主页</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
 <style>
-.code-box{
-    background:#f5f5f5;
-    border:1px solid #ddd;
-    padding:15px;
-    border-radius:5px;
-    overflow:auto;
+body{
+    background:#0d1117;
+    color:white;
+    font-family:Arial,sans-serif;
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    background:#161b22;
+    padding:25px;
+    border-radius:12px;
 }
 
 pre{
-    margin:0;
-    font-family:Consolas,monospace;
+    border-radius:10px;
 }
 </style>
 </head>
 
 <body>
-<h2>Prime Number</h2>
 
-<div class="code-box">
-<pre><code>
+<h1>我的JavaHomeWork博客主页</h1>
+
+<div class="card">
+
+<h2>Prime Number Color Grid Program</h2>
+
+<pre><code class="language-java">
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,14 +54,13 @@ import java.util.List;
 public class HomeWork extends JPanel {
 
     private final int totalNumbers = 120;
-    private List<Integer> primes = new ArrayList<>();
+    private List&lt;Integer&gt; primes = new ArrayList&lt;&gt;();
 
     public HomeWork() {
         setBackground(Color.WHITE);
         findPrimes(totalNumbers);
     }
-
-    // 计算质数
+// 计算质数
     private void findPrimes(int n) {
         primes.clear();
         for (int i = 2; i <= n; i++) {
@@ -141,8 +163,15 @@ public class HomeWork extends JPanel {
         frame.setVisible(true);
     }
 }
+   
+}
 </code></pre>
+
 </div>
+
+<script>
+hljs.highlightAll();
+</script>
 
 </body>
 </html>
