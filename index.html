@@ -272,6 +272,13 @@ public class EnumHomework {
 </figure>
 </div>
 <div class="card">
+    <h2>3. 形式化方法 + 书籍推荐</h2>
+<div class="card">
+     <h2>3. ① 阅读和了解什么是形式化方法？</h2>
+    <p>形式化方法是一种用数学语言和逻辑来描述、建模和验证软件或系统的方法。它把系统从模糊的自然语言转化为精确的数学模型，通过数学推理或自动工具检查系统是否正确、安全或可靠。这样可以在开发前或开发过程中发现潜在错误。</p>
+    <p>形式化方法常用于航空航天、核电、医疗设备等关键系统，以及安全系统和复杂协议验证。它的核心特点是精确、可验证、可分析，可以确保系统满足设计要求，例如避免死锁、越界或逻辑错误。简单来说，就是用数学“验算”软件，让它更安全可靠。</p>
+    <h2>② 推荐阅读书籍《大象---thinking in UML》</h2>
+</div>
     <h2>4. 计算方法执行耗时（匿名内部类）</h2>
     <pre><code class="language-java">
 public class TimeCounter {
@@ -327,28 +334,70 @@ public class TimeCounter {
 </div>
  <div class="card">
     <h2>5. Java 反射机制</h2>
-    <p>
-        本作业通过示例代码演示了 Java 反射的基本用法：
-        1. 获取 Class 对象
-        2. 用反射创建对象
-        3. 调用 public / private 方法
-        4. 修改 public / private 字段
-        反射机制让程序可以在运行时动态获取类信息并操作对象。
-    </p>
     <pre><code class="language-java">
-类名：Student
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-【反射创建对象后（默认值）】
-大家好，我是一名大学生，今年18岁
+class Student {
+    private String name;
+    public int age;
 
-【调用 public 方法】
-大家好，我是一名大学生，今年18岁
+  
+    public Student() {
+        this.name = "一名大学生";
+        this.age = 18;
+    }
 
-【调用 private 方法】
-一名大学生正在学习：Java反射
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
 
-【修改字段后最终结果】
-大家好，我是李小妍，今年20岁
+    public void sayHello() {
+        System.out.println("大家好，我是" + name + "，今年" + age + "岁");
+    }
+
+    private void study(String subject) {
+        System.out.println(name + "正在学习：" + subject);
+    }
+}
+
+public class ReflectionDemo {
+    public static void main(String[] args) throws Exception {
+       
+        Class<?> clazz = Student.class;
+        System.out.println("类名：" + clazz.getName());
+
+       
+        Student stu = (Student) clazz.getDeclaredConstructor().newInstance();
+        System.out.println("\n【反射创建对象后（默认值）】");
+        stu.sayHello();
+
+       
+        Method sayHello = clazz.getMethod("sayHello");
+        System.out.println("\n【调用 public 方法】");
+        sayHello.invoke(stu);
+
+        
+        Method study = clazz.getDeclaredMethod("study", String.class);
+        study.setAccessible(true);
+        System.out.println("\n【调用 private 方法】");
+        study.invoke(stu, "Java反射");
+
+       
+        Field nameField = clazz.getDeclaredField("name");
+        nameField.setAccessible(true);
+        nameField.set(stu, "李小妍");
+
+       
+        Field ageField = clazz.getField("age");
+        ageField.set(stu, 20);
+
+      
+        System.out.println("\n【修改字段后最终结果】");
+        sayHello.invoke(stu);
+    }
+}
     </code></pre>
 
     <figure style="text-align: center; margin: 20px 0;">
@@ -362,14 +411,14 @@ public class TimeCounter {
     </figure>
 </div> 
       <div class="card">
-    <h2>6. Java IO 流文件复制</h2>
+    <h2>6. 字符/字节缓冲流</h2>
     
     <pre><code class="language-java">
 import java.io.*;
 
 public class FileCopyDemo {
 
-    // 1. 文本文件复制（字符缓冲流，最常用）
+    
     public static void copyTextFile(String srcPath, String destPath) throws IOException {
         File srcFile = new File(srcPath);
         File destFile = new File(destPath);
@@ -388,7 +437,7 @@ public class FileCopyDemo {
         System.out.println("文本文件复制完成！");
     }
 
-    // 2. 任意文件复制（字节缓冲流，万能复制）
+   
     public static void copyAnyFile(String srcPath, String destPath) throws IOException {
         File srcFile = new File(srcPath);
         File destFile = new File(destPath);
