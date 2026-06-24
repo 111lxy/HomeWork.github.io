@@ -539,6 +539,9 @@ class MyRunnable implements Runnable {
     }
 }
     </code></pre>
+     <div class="diff-desc">
+继承Thread类创建线程与实现Runnable接口创建线程最核心的区别在于类的继承约束与资源共享能力：继承Thread方式需要自定义类直接继承Thread并重写run方法，由于Java是单继承机制，该类后续不能再继承其他父类，且每创建一个线程就要new一个子类对象，多个线程之间无法共用同一个任务数据，线程对象与业务逻辑耦合度较高；而实现Runnable接口是让自定义类实现Runnable接口并重写run方法，再将该实现类对象传入Thread构造器开启线程，该方式规避了单继承限制，当前类还可以继承其他父类、实现更多接口，同时同一个Runnable任务实例能够被多个Thread对象共用，很方便实现多线程间资源共享，做到线程调度对象与业务执行逻辑解耦，扩展性更强，也是实际项目开发中创建线程的主流选择。
+</div>
 <figure style="text-align: center; margin: 20px 0;">
   
   <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
