@@ -555,7 +555,576 @@ class MyRunnable implements Runnable {
   >
 </figure>
 </div>
-<script>
+                        <div class="card">
+    <h2>8.实验四：小学生算术计算</h2>
+    <pre><code class="language-java">
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
+public class MathPractice {
+    // 界面组件
+    private JComboBox<String> cbLevel;
+    private JLabel lblQuestion;
+    private JTextField tfAnswer;
+    private JButton btnCheck, btnNext;
+    private JLabel lblTip, lblStat;
+
+    // 题目数据
+    private int num1, num2, op;
+    private int right = 0, wrong = 0;
+    private final Random rand = new Random();
+
+    public MathPractice() {
+        initUI();
+        newQuestion();
+    }
+
+    // 初始化界面
+    private void initUI() {
+        JFrame frame = new JFrame("小学生算术练习系统");
+        frame.setSize(450, 280);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(new GridLayout(6, 2, 8, 8));
+        setPadding(frame.getContentPane());
+
+        // 难度选择
+        frame.add(new JLabel("选择难度："));
+        cbLevel = new JComboBox<>(new String[]{"简单(0~10)", "中等(0~50)", "困难(0~100)"});
+        frame.add(cbLevel);
+
+        // 题目显示，修复Swing.CENTER报错
+        frame.add(new JLabel("当前题目："));
+        lblQuestion = new JLabel("0 + 0 = ?", SwingConstants.CENTER);
+        lblQuestion.setFont(new Font("微软雅黑", Font.BOLD, 22));
+        frame.add(lblQuestion);
+
+        // 答案输入
+        frame.add(new JLabel("你的答案："));
+        tfAnswer = new JTextField();
+        tfAnswer.setFont(new Font("微软雅黑", Font.PLAIN, 18));
+        frame.add(tfAnswer);
+
+        // 按钮
+        btnCheck = new JButton("判断答案");
+        btnNext = new JButton("下一题");
+        frame.add(btnCheck);
+        frame.add(btnNext);
+
+        // 提示文字
+        frame.add(new JLabel("判断结果："));
+        lblTip = new JLabel("请输入答案", SwingConstants.CENTER);
+        frame.add(lblTip);
+
+        // 统计
+        frame.add(new JLabel("答题统计："));
+        lblStat = new JLabel("正确：0  错误：0", SwingConstants.CENTER);
+        frame.add(lblStat);
+
+        // 按钮事件，消除未使用参数e警告
+        btnCheck.addActionListener(new CheckListener());
+        btnNext.addActionListener(_ -> newQuestion());
+        cbLevel.addActionListener(_ -> newQuestion());
+
+        frame.setVisible(true);
+    }
+
+    // 设置边距工具方法：修复Container无setBorder报错 + 消除gap固定值警告
+    private void setPadding(Container c) {
+        final int gap = 15;
+        Border emptyBorder = BorderFactory.createEmptyBorder(gap, gap, gap, gap);
+        // 强转JComponent调用setBorder
+        ((JComponent) c).setBorder(emptyBorder);
+    }
+
+    // 生成新题目
+    private void newQuestion() {
+        int max;
+        int level = cbLevel.getSelectedIndex();
+        if (level == 0) max = 10;
+        else if (level == 1) max = 50;
+        else max = 100;
+
+        num1 = rand.nextInt(max + 1);
+        num2 = rand.nextInt(max + 1);
+        op = rand.nextInt(4); // 0+ 1- 2* 3/
+
+        // 减法避免负数，除法保证整除
+        if (op == 1 && num1 < num2) {
+            int t = num1; num1 = num2; num2 = t;
+        }
+        if (op == 3) {
+            if (num2 == 0) num2 = 1;
+            num1 = num1 * num2;
+        }
+
+        String opStr = switch (op) {
+            case 0 -> "+";
+            case 1 -> "-";
+            case 2 -> "*";
+            case 3 -> "/";
+            default -> "+";
+        };
+        lblQuestion.setText(num1 + " " + opStr + " " + num2 + " = ?");
+        tfAnswer.setText("");
+        lblTip.setText("请输入答案");
+    }
+
+    // 计算标准答案
+    private int getAnswer() {
+        return switch (op) {
+            case 0 -> num1 + num2;
+            case 1 -> num1 - num2;
+            case 2 -> num1 * num2;
+            case 3 -> num1 / num2;
+            default -> 0;
+        };
+    }
+
+    // 判断按钮监听器
+    private class CheckListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String input = tfAnswer.getText().trim();
+            try {
+                int userAns = Integer.parseInt(input);
+                int realAns = getAnswer();
+                if (userAns == realAns) {
+                    lblTip.setText("✅ 回答正确！");
+                    right++;
+                } else {
+                    lblTip.setText("❌ 回答错误，正确答案：" + realAns);
+                    wrong++;
+                }
+                lblStat.setText("正确：" + right + "  错误：" + wrong);
+            } catch (NumberFormatException ex) {
+                lblTip.setText("⚠️ 请输入有效数字！");
+            }
+        }
+    }
+
+    // 主程序入口
+    public static void main(String[] args) {
+        // Swing规范：在事件调度线程创建界面，Lambda可优化为方法引用
+        SwingUtilities.invokeLater(MathPractice::new);
+    }
+}
+    </code></pre>
+     <figure style="text-align: center; margin: 20px 0;">
+  <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+  <img 
+    src="./计算.png" 
+    alt="运行结果截图" 
+    style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+    class="result-img"
+  >
+</figure>
+    <h2>扫雷游戏</h2>
+     <pre><code class="language-java">
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.Random;
+
+public class MineSweeperGUI {
+    // 当前棋盘配置
+    private int ROW;
+    private int COL;
+    private int MINE_COUNT;
+
+    private JButton[][] btnGrid;
+    private boolean[][] isMine;
+    private boolean[][] isOpened;
+    private boolean[][] isFlag;
+    private int openedCell;
+    private int stepCount;        // 总步数
+    private boolean gameOver;
+
+    private final JFrame frame;
+    private JPanel panelBoard;
+    private JLabel lblTime;
+    private JLabel lblStep;
+    private Timer timer;
+    private long startTime;
+    private static final String SAVE_FILE = "mine_save.txt";
+
+    public MineSweeperGUI() {
+        frame = new JFrame("扫雷游戏");
+        initTopPanel();
+        // 默认中等开局
+        startNewGame(16, 20, 40);
+        frame.setVisible(true);
+    }
+
+    // 顶部控制面板：难度、重开、存档、计时步数标签
+    private void initTopPanel() {
+        JPanel panelTop = new JPanel();
+        panelTop.setLayout(new FlowLayout(FlowLayout.LEFT, 6, 4));
+
+        JButton btnEasy = new JButton("简单 9×9");
+        JButton btnMid = new JButton("中等 16×20");
+        JButton btnHard = new JButton("困难 16×30");
+        JButton btnRestart = new JButton("重新开局");
+        JButton btnSave = new JButton("保存进度");
+        JButton btnLoad = new JButton("读取进度");
+        lblTime = new JLabel("用时：0 秒");
+        lblStep = new JLabel("步数：0");
+
+        panelTop.add(btnEasy);
+        panelTop.add(btnMid);
+        panelTop.add(btnHard);
+        panelTop.add(btnRestart);
+        panelTop.add(btnSave);
+        panelTop.add(btnLoad);
+        panelTop.add(lblTime);
+        panelTop.add(lblStep);
+
+        frame.setLayout(new BorderLayout());
+        frame.add(panelTop, BorderLayout.NORTH);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
+        // 难度绑定
+        btnEasy.addActionListener(_ -> startNewGame(9, 9, 10));
+        btnMid.addActionListener(_ -> startNewGame(16, 20, 40));
+        btnHard.addActionListener(_ -> startNewGame(16, 30, 99));
+        // 重新开局
+        btnRestart.addActionListener(_ -> startNewGame(ROW, COL, MINE_COUNT));
+        // 存档读档
+        btnSave.addActionListener(_ -> saveGame());
+        btnLoad.addActionListener(_ -> loadGame());
+    }
+
+    // 开局初始化游戏
+    private void startNewGame(int row, int col, int mineNum) {
+        // 停止旧计时器
+        if (timer != null) timer.stop();
+
+        this.ROW = row;
+        this.COL = col;
+        this.MINE_COUNT = mineNum;
+        openedCell = 0;
+        stepCount = 0;
+        gameOver = false;
+
+        isMine = new boolean[ROW][COL];
+        isOpened = new boolean[ROW][COL];
+        isFlag = new boolean[ROW][COL];
+        btnGrid = new JButton[ROW][COL];
+
+        // 移除旧棋盘
+        if (panelBoard != null) {
+            frame.remove(panelBoard);
+        }
+        panelBoard = new JPanel();
+        panelBoard.setLayout(new GridLayout(ROW, COL, 1, 1));
+        panelBoard.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        // 生成格子按钮
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                JButton btn = new JButton();
+                btn.setPreferredSize(new Dimension(30, 30));
+                btn.setFont(new Font("黑体", Font.BOLD, 14));
+                btn.setFocusPainted(false);
+                int r = i, c = j;
+
+                btn.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (gameOver) return;
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            openCell(r, c);
+                            stepCount++;
+                            lblStep.setText("步数：" + stepCount);
+                            checkWin();
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            toggleFlag(r, c);
+                        }
+                    }
+                });
+                btnGrid[i][j] = btn;
+                panelBoard.add(btn);
+            }
+        }
+        placeMine();
+        frame.add(panelBoard, BorderLayout.CENTER);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+
+        // 启动计时
+        startTime = System.currentTimeMillis();
+        timer = new Timer(1000, e -> {
+            long sec = (System.currentTimeMillis() - startTime) / 1000;
+            lblTime.setText("用时：" + sec + " 秒");
+        });
+        timer.start();
+        lblStep.setText("步数：0");
+    }
+
+    // 随机布置地雷
+    private void placeMine() {
+        Random random = new Random();
+        int placed = 0;
+        while (placed < MINE_COUNT) {
+            int r = random.nextInt(ROW);
+            int c = random.nextInt(COL);
+            if (!isMine[r][c]) {
+                isMine[r][c] = true;
+                placed++;
+            }
+        }
+    }
+
+    // 翻开格子逻辑
+    private void openCell(int r, int c) {
+        if (r < 0 || r >= ROW || c < 0 || c >= COL) return;
+        if (isOpened[r][c] || isFlag[r][c]) return;
+
+        if (isMine[r][c]) {
+            gameOver = true;
+            timer.stop();
+            showAllMine();
+            JOptionPane.showMessageDialog(frame, "游戏失败！你踩到地雷了");
+            return;
+        }
+
+        isOpened[r][c] = true;
+        openedCell++;
+        int aroundMine = countAroundMine(r, c);
+        if (aroundMine > 0) {
+            btnGrid[r][c].setText(String.valueOf(aroundMine));
+            setNumberColor(btnGrid[r][c], aroundMine);
+        } else {
+            for (int dr = -1; dr <= 1; dr++) {
+                for (int dc = -1; dc <= 1; dc++) {
+                    if (dr != 0 || dc != 0) openCell(r + dr, c + dc);
+                }
+            }
+        }
+        btnGrid[r][c].setEnabled(false);
+    }
+
+    // 统计周围地雷数量
+    private int countAroundMine(int r, int c) {
+        int cnt = 0;
+        for (int dr = -1; dr <= 1; dr++) {
+            for (int dc = -1; dc <= 1; dc++) {
+                int nr = r + dr;
+                int nc = c + dc;
+                if (nr >= 0 && nr < ROW && nc >= 0 && nc < COL && isMine[nr][nc]) {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+
+    // 右键插旗/取消插旗
+    private void toggleFlag(int r, int c) {
+        if (isOpened[r][c]) return;
+        isFlag[r][c] = !isFlag[r][c];
+        btnGrid[r][c].setText(isFlag[r][c] ? "🚩" : "");
+    }
+
+    // 游戏失败展示全部地雷
+    private void showAllMine() {
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                if (isMine[i][j]) {
+                    btnGrid[i][j].setText("💣");
+                    btnGrid[i][j].setBackground(Color.RED);
+                }
+            }
+        }
+    }
+
+    // 数字颜色区分
+    private void setNumberColor(JButton btn, int num) {
+        Color color = switch (num) {
+            case 1 -> new Color(0, 0, 255);
+            case 2 -> new Color(0, 128, 0);
+            case 3 -> new Color(255, 0, 0);
+            case 4 -> new Color(0, 0, 128);
+            case 5 -> new Color(128, 0, 0);
+            case 6 -> new Color(0, 128, 128);
+            case 7 -> Color.BLACK;
+            case 8 -> Color.GRAY;
+            default -> Color.BLACK;
+        };
+        btn.setForeground(color);
+    }
+
+    // 判断胜利
+    private void checkWin() {
+        if (openedCell == ROW * COL - MINE_COUNT) {
+            gameOver = true;
+            timer.stop();
+            long useSec = (System.currentTimeMillis() - startTime) / 1000;
+            JOptionPane.showMessageDialog(frame, "恭喜！扫雷通关胜利\n总用时：" + useSec + "秒，总步数：" + stepCount);
+        }
+    }
+
+    // 保存游戏进度
+    private void saveGame() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(SAVE_FILE))) {
+            bw.write(ROW + " " + COL + " " + MINE_COUNT);
+            bw.newLine();
+            bw.write(stepCount + " " + (System.currentTimeMillis() - startTime));
+            bw.newLine();
+            // 地雷矩阵
+            for (int i = 0; i < ROW; i++) {
+                StringBuilder line = new StringBuilder();
+                for (int j = 0; j < COL; j++) line.append(isMine[i][j] ? "1" : "0");
+                bw.write(line.toString());
+                bw.newLine();
+            }
+            // 翻开矩阵
+            for (int i = 0; i < ROW; i++) {
+                StringBuilder line = new StringBuilder();
+                for (int j = 0; j < COL; j++) line.append(isOpened[i][j] ? "1" : "0");
+                bw.write(line.toString());
+                bw.newLine();
+            }
+            // 旗帜矩阵
+            for (int i = 0; i < ROW; i++) {
+                StringBuilder line = new StringBuilder();
+                for (int j = 0; j < COL; j++) line.append(isFlag[i][j] ? "1" : "0");
+                bw.write(line.toString());
+                bw.newLine();
+            }
+            JOptionPane.showMessageDialog(frame, "进度保存成功");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "保存失败：" + e.getMessage());
+        }
+    }
+
+    // 读取游戏进度
+    private void loadGame() {
+        File save = new File(SAVE_FILE);
+        if (!save.exists()) {
+            JOptionPane.showMessageDialog(frame, "暂无存档文件");
+            return;
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(save))) {
+            String[] sizeInfo = br.readLine().split(" ");
+            int r = Integer.parseInt(sizeInfo[0]);
+            int c = Integer.parseInt(sizeInfo[1]);
+            int mineNum = Integer.parseInt(sizeInfo[2]);
+
+            String[] timeStep = br.readLine().split(" ");
+            int oldStep = Integer.parseInt(timeStep[0]);
+            long passMs = Long.parseLong(timeStep[1]);
+
+            // 新开对应尺寸棋盘
+            startNewGame(r, c, mineNum);
+            stepCount = oldStep;
+            startTime = System.currentTimeMillis() - passMs;
+            lblStep.setText("步数：" + stepCount);
+
+            // 回填存档数据
+            for (int i = 0; i < r; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < c; j++) isMine[i][j] = line.charAt(j) == '1';
+            }
+            for (int i = 0; i < r; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < c; j++) isOpened[i][j] = line.charAt(j) == '1';
+            }
+            for (int i = 0; i < r; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < c; j++) isFlag[i][j] = line.charAt(j) == '1';
+            }
+            refreshBoardUI();
+            JOptionPane.showMessageDialog(frame, "读取存档完成");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "读取失败：" + e.getMessage());
+        }
+    }
+
+    // 根据存档刷新界面格子状态
+    private void refreshBoardUI() {
+        openedCell = 0;
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                JButton btn = btnGrid[i][j];
+                btn.setText("");
+                btn.setEnabled(true);
+                btn.setBackground(null);
+
+                if (isFlag[i][j]) btn.setText("🚩");
+                if (isOpened[i][j]) {
+                    btn.setEnabled(false);
+                    openedCell++;
+                    if (isMine[i][j]) {
+                        btn.setText("💣");
+                        btn.setBackground(Color.RED);
+                    } else {
+                        int n = countAroundMine(i, j);
+                        if (n > 0) {
+                            btn.setText(String.valueOf(n));
+                            setNumberColor(btn, n);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(MineSweeperGUI::new);
+    }
+}
+    </code></pre>
+<figure style="text-align: center; margin: 20px 0;">
+  
+  <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+  
+ 
+  <img 
+    src="./扫雷.png" 
+    alt="运行结果截图" 
+    style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+    class="result-img"
+  >
+</figure>
+ <h2>射击游戏</h2>
+     <pre><code class="language-java">
+
+
+    </code></pre>
+<figure style="text-align: center; margin: 20px 0;">
+  
+  <h4 style="margin-bottom: 10px; color: #333;">运行结果截图</h4>
+  
+ 
+  <img 
+    src="./射击.png" 
+    alt="运行结果截图" 
+    style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+    class="result-img"
+  >
+</figure>
+</div>
+<div class="card">
+    <h2>获奖证明：</h2>
+    <img 
+    src="./获奖.png" 
+    alt="运行结果截图" 
+    style="width: 400px; height: auto; border: 1px solid #eee; border-radius: 8px;"
+    class="result-img"
+  >
+    </div>
+    <script>
 hljs.highlightAll();
 </script>
 
