@@ -1099,7 +1099,343 @@ public class MineSweeperGUI {
 </figure>
  <h2>射击游戏</h2>
      <pre><code class="language-java">
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 
+public class ShootingGameGUI extends JFrame {
+    private static final int WIDTH = 400;
+    private static final int HEIGHT = 600;
+
+    // 玩家炮台参数（放大尺寸，更醒目）
+    private int playerX;
+    private final int playerY = HEIGHT - 60;
+    private final int playerW = 55;
+    private final int playerH = 42;
+    private int moveSpeed;
+
+    private ArrayList<Bullet> bulletList;
+    private ArrayList<Enemy> enemyList;
+
+    private int score;
+    private int difficultyLevel;
+    private boolean gameOver;
+    private long startTime;
+    private int stepCount;
+    private Timer timer;
+    private JLabel lblTime, lblStep, lblScore;
+    private final GamePanel gamePanel;
+    private static final String SAVE_FILE = "shoot_save.txt";
+
+    public ShootingGameGUI() {
+        setTitle("射击小游戏");
+        setLayout(new BorderLayout());
+        setResizable(false);
+        initTopBar();
+        gamePanel = new GamePanel();
+        // 关键1：面板开启可聚焦，键盘监听挂载到画布面板，避开按钮抢焦点
+        gamePanel.setFocusable(true);
+        add(gamePanel, BorderLayout.CENTER);
+        setSize(WIDTH, HEIGHT);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setFocusable(true);
+
+        // 关键2：键盘监听绑定画布面板，不再绑JFrame
+        gamePanel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (gameOver) return;
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT -> {
+                        if (playerX > 0) playerX -= moveSpeed;
+                    }
+                    case KeyEvent.VK_RIGHT -> {
+                        if (playerX < WIDTH - playerW) playerX += moveSpeed;
+                    }
+                    case KeyEvent.VK_SPACE -> shootBullet();
+                }
+            }
+        });
+
+        startNewGame(1);
+        new Thread(this::gameLoop).start();
+        setVisible(true);
+        // 关键3：窗口打开自动给画布申请焦点，开局直接按方向键就能动
+        gamePanel.requestFocusInWindow();
+    }
+
+    private void initTopBar() {
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 3));
+        JButton btnEasy = new JButton("简单");
+        JButton btnMid = new JButton("中等");
+        JButton btnHard = new JButton("困难");
+        JButton btnRestart = new JButton("重新开局");
+        JButton btnSave = new JButton("保存进度");
+        JButton btnLoad = new JButton("读取进度");
+        lblTime = new JLabel("用时：0s");
+        lblStep = new JLabel("步数：0");
+        lblScore = new JLabel("得分：0");
+
+        topPanel.add(btnEasy);
+        topPanel.add(btnMid);
+        topPanel.add(btnHard);
+        topPanel.add(btnRestart);
+        topPanel.add(btnSave);
+        topPanel.add(btnLoad);
+        topPanel.add(lblTime);
+        topPanel.add(lblStep);
+        topPanel.add(lblScore);
+        add(topPanel, BorderLayout.NORTH);
+
+        btnEasy.addActionListener(_ -> {
+            startNewGame(1);
+            gamePanel.requestFocusInWindow();
+        });
+        btnMid.addActionListener(_ -> {
+            startNewGame(2);
+            gamePanel.requestFocusInWindow();
+        });
+        btnHard.addActionListener(_ -> {
+            startNewGame(3);
+            gamePanel.requestFocusInWindow();
+        });
+        btnRestart.addActionListener(_ -> {
+            startNewGame(difficultyLevel);
+            gamePanel.requestFocusInWindow();
+        });
+        btnSave.addActionListener(_ -> saveGame());
+        btnLoad.addActionListener(_ -> {
+            loadGame();
+            gamePanel.requestFocusInWindow();
+        });
+    }
+
+    private void startNewGame(int level) {
+        if (timer != null) timer.stop();
+        difficultyLevel = level;
+        playerX = WIDTH / 2 - playerW / 2;
+        bulletList = new ArrayList<>();
+        enemyList = new ArrayList<>();
+        score = 0;
+        stepCount = 0;
+        gameOver = false;
+
+        if (level == 1) moveSpeed = 8;
+        else if (level == 2) moveSpeed = 10;
+        else moveSpeed = 12;
+
+        startTime = System.currentTimeMillis();
+        timer = new Timer(1000, e -> {
+            long sec = (System.currentTimeMillis() - startTime) / 1000;
+            lblTime.setText("用时：" + sec + "s");
+        });
+        timer.start();
+        lblStep.setText("步数：0");
+        lblScore.setText("得分：0");
+    }
+
+    private void shootBullet() {
+        int bx = playerX + playerW / 2 - 3;
+        bulletList.add(new Bullet(bx, playerY - 15));
+        stepCount++;
+        lblStep.setText("步数：" + stepCount);
+    }
+
+    private void spawnEnemy() {
+        double rate = switch (difficultyLevel) {
+            case 1 -> 0.02;
+            case 2 -> 0.035;
+            default -> 0.05;
+        };
+        if (new Random().nextDouble() < rate) {
+            int x = new Random().nextInt(WIDTH - 30);
+            enemyList.add(new Enemy(x, -30, difficultyLevel));
+        }
+    }
+
+    private void gameLoop() {
+        while (true) {
+            if (!gameOver) {
+                spawnEnemy();
+                updatePos();
+                checkCollision();
+                checkGameOver();
+            }
+            gamePanel.repaint();
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
+    private void updatePos() {
+        Iterator<Bullet> bIt = bulletList.iterator();
+        while (bIt.hasNext()) {
+            Bullet b = bIt.next();
+            b.y -= b.speed;
+            if (b.y < -10) bIt.remove();
+        }
+        for (Enemy e : enemyList) e.y += e.speed;
+    }
+
+    private void checkCollision() {
+        Iterator<Enemy> eIt = enemyList.iterator();
+        while (eIt.hasNext()) {
+            Enemy enemy = eIt.next();
+            boolean hit = false;
+            Iterator<Bullet> bIt = bulletList.iterator();
+            while (bIt.hasNext() && !hit) {
+                Bullet bullet = bIt.next();
+                Rectangle r1 = new Rectangle(bullet.x, bullet.y, 6, 14);
+                Rectangle r2 = new Rectangle(enemy.x, enemy.y, 30, 30);
+                if (r1.intersects(r2)) {
+                    bIt.remove();
+                    eIt.remove();
+                    score += 10;
+                    lblScore.setText("得分：" + score);
+                    hit = true;
+                }
+            }
+        }
+    }
+
+    private void checkGameOver() {
+        for (Enemy e : enemyList) {
+            if (e.y > HEIGHT) {
+                gameOver = true;
+                timer.stop();
+                long useSec = (System.currentTimeMillis() - startTime) / 1000;
+                JOptionPane.showMessageDialog(this,
+                        "游戏结束\n总用时：" + useSec + "秒\n总步数：" + stepCount + "\n最终得分：" + score);
+                break;
+            }
+        }
+    }
+
+    private void saveGame() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(SAVE_FILE))) {
+            bw.write(difficultyLevel + " " + playerX + " " + moveSpeed);
+            bw.newLine();
+            bw.write(score + " " + stepCount + " " + (System.currentTimeMillis() - startTime));
+            JOptionPane.showMessageDialog(this, "保存成功");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "保存失败：" + e.getMessage());
+        }
+    }
+
+    private void loadGame() {
+        File f = new File(SAVE_FILE);
+        if (!f.exists()) {
+            JOptionPane.showMessageDialog(this, "无存档");
+            return;
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String[] line1 = br.readLine().split(" ");
+            int lev = Integer.parseInt(line1[0]);
+            int px = Integer.parseInt(line1[1]);
+            int spd = Integer.parseInt(line1[2]);
+
+            String[] line2 = br.readLine().split(" ");
+            int sc = Integer.parseInt(line2[0]);
+            int stp = Integer.parseInt(line2[1]);
+            long passMs = Long.parseLong(line2[2]);
+
+            startNewGame(lev);
+            playerX = px;
+            moveSpeed = spd;
+            score = sc;
+            stepCount = stp;
+            startTime = System.currentTimeMillis() - passMs;
+            lblScore.setText("得分：" + score);
+            lblStep.setText("步数：" + stepCount);
+            JOptionPane.showMessageDialog(this, "读档成功");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "读档失败：" + e.getMessage());
+        }
+    }
+
+    static class Bullet {
+        int x, y;
+        final int speed = 11;
+        Bullet(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    static class Enemy {
+        int x, y, speed;
+        Enemy(int x, int y, int level) {
+            this.x = x;
+            this.y = y;
+            if (level == 1) speed = 3;
+            else if (level == 2) speed = 4;
+            else speed = 6;
+        }
+    }
+
+    class GamePanel extends JPanel {
+        public GamePanel() {
+            setDoubleBuffered(true); // 防闪烁
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+            // ========== 醒目炮台绘制 ==========
+            g2d.setColor(new Color(20, 160, 20));
+            g2d.fillRect(playerX, playerY, playerW, playerH);
+            g2d.setColor(Color.BLACK);
+            g2d.drawRect(playerX, playerY, playerW, playerH);
+            // 炮管
+            int gunW = 8;
+            int gunH = 18;
+            int gunX = playerX + (playerW - gunW) / 2;
+            int gunY = playerY - gunH;
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fillRect(gunX, gunY, gunW, gunH);
+            g2d.setColor(Color.BLACK);
+            g2d.drawRect(gunX, gunY, gunW, gunH);
+
+            // 子弹
+            g2d.setColor(Color.YELLOW);
+            for (Bullet b : bulletList) {
+                g2d.fillRect(b.x, b.y, 6, 14);
+            }
+
+            // 敌机
+            g2d.setColor(Color.RED);
+            for (Enemy e : enemyList) {
+                g2d.fillRect(e.x, e.y, 30, 30);
+            }
+
+            // 结束文字
+            if (gameOver) {
+                g2d.setColor(Color.RED);
+                g2d.setFont(new Font("微软雅黑", Font.BOLD, 30));
+                String txt = "游戏结束 得分：" + score;
+                int w = g2d.getFontMetrics().stringWidth(txt);
+                g2d.drawString(txt, (WIDTH - w) / 2, HEIGHT / 2);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ShootingGameGUI::new);
+    }
+}
 
     </code></pre>
 <figure style="text-align: center; margin: 20px 0;">
